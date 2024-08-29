@@ -11,6 +11,11 @@ class AudioPlayerService {
     player.play();
   }
 
+  static Future<void> playAudioFile(String filePath) async {
+    await player.setFilePath(filePath);
+    player.play();
+  }
+
   static Future<String> saveAudio(List<int> bytes, String fileName) async {
     final directory = await getApplicationDocumentsDirectory();
     final filePath = '${directory.path}/$fileName';
