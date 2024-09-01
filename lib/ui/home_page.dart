@@ -62,43 +62,65 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey[200],
       appBar: AppBar(
         actions: [
           IconButton(
-            icon: Icon(_isSidebarVisible ? Icons.table_rows : Icons.table_rows),
+            icon: Icon(_isSidebarVisible ? Icons.menu_open : Icons.menu,),
+            color: Colors.black87,
             onPressed: _toggleSidebar,
           ),
         ],
-        title: const Text('Sound Track'),
+        title: const Text('Sound Track', style: TextStyle(fontWeight: FontWeight.bold)),
+        backgroundColor: Colors.deepPurple,
+        elevation: 0,
       ),
       body: Row(
         children: [
-          if (_isSidebarVisible) SideBar(onCollectionSelected: _onCollectionSelected, isVisible: _isSidebarVisible),
+          if (_isSidebarVisible)
+            SideBar(onCollectionSelected: _onCollectionSelected, isVisible: _isSidebarVisible),
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.all(20.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: <Widget>[
                   TextField(
                     controller: _textFieldController,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       labelText: 'Adicione algum texto',
+                      labelStyle: TextStyle(color: Colors.deepPurple[700]),
+                      filled: true,
+                      fillColor: Colors.white,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12.0),
+                        borderSide: BorderSide.none,
+                      ),
                     ),
                   ),
-                  const SizedBox(height: 16.0),
-                  ElevatedButton(
+                  const SizedBox(height: 20.0),
+                  ElevatedButton.icon(
                     onPressed: () {
                       _playTextToSpeech(_textFieldController.text);
                     },
-                    child: _isLoadingVoice
-                        ? const LinearProgressIndicator()
+                    icon: _isLoadingVoice
+                        ? const CircularProgressIndicator(
+                      strokeWidth: 2.0,
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    )
                         : const Icon(Icons.volume_up),
+                    label: const Text('Reproduzir Texto'),
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16.0),
+                      primary: Colors.deepPurple[800],
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12.0),
+                      ),
+                    ),
                   ),
-                  const SizedBox(height: 16.0),
-                  ElevatedButton(
+                  const SizedBox(height: 20.0),
+                  ElevatedButton.icon(
                     onPressed: () {
-                      // Salva no primeiro botão disponível
                       final firstAvailableIndex = savedAudioPaths.indexWhere((path) => path == null);
                       if (firstAvailableIndex != -1) {
                         _saveTextToSpeech(_textFieldController.text, firstAvailableIndex);
@@ -108,15 +130,23 @@ class _MyHomePageState extends State<MyHomePage> {
                         );
                       }
                     },
-                    child: const Text('Salvar Audio'),
+                    icon: const Icon(Icons.save),
+                    label: const Text('Salvar Áudio'),
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16.0),
+                      primary: Colors.deepPurple[900],
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12.0),
+                      ),
+                    ),
                   ),
-                  const SizedBox(height: 16.0),
+                  const SizedBox(height: 20.0),
                   Expanded(
                     child: GridView.builder(
                       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 2,
-                        crossAxisSpacing: 8.0,
-                        mainAxisSpacing: 8.0,
+                        crossAxisSpacing: 12.0,
+                        mainAxisSpacing: 12.0,
                       ),
                       itemCount: 8,
                       itemBuilder: (context, index) {
@@ -126,7 +156,23 @@ class _MyHomePageState extends State<MyHomePage> {
                             AudioPlayerService.playAudioFile(savedAudioPaths[index]!);
                           }
                               : null,
-                          child: Text('Botãozinho ${index + 1}'),
+                          style: ElevatedButton.styleFrom(
+                            primary: savedAudioPaths[index] != null
+                                ? Colors.deepPurple[300]
+                                : Colors.grey[400],
+                            onPrimary: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12.0),
+                            ),
+                            padding: const EdgeInsets.all(16.0),
+                          ),
+                          child: Text(
+                            'Botãozinho ${index + 1}',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16.0,
+                            ),
+                          ),
                         );
                       },
                     ),

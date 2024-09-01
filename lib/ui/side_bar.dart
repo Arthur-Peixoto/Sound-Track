@@ -31,18 +31,26 @@ class _SideBarState extends State<SideBar> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text('Nova Coleção'),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15.0),
+          ),
+          title: const Text('Nova Coleção', style: TextStyle(fontWeight: FontWeight.bold)),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               TextField(
                 onChanged: (value) => collectionName = value,
-                decoration: InputDecoration(labelText: 'Nome da Coleção'),
+                decoration: InputDecoration(
+                  labelText: 'Nome da Coleção',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12.0),
+                  ),
+                ),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 16),
               Row(
                 children: [
-                  Text('Escolha a cor:'),
+                  const Text('Escolha a cor:'),
                   const SizedBox(width: 8),
                   DropdownButton<Color>(
                     value: collectionColor,
@@ -58,7 +66,11 @@ class _SideBarState extends State<SideBar> {
                         child: Container(
                           width: 24,
                           height: 24,
-                          color: value,
+                          decoration: BoxDecoration(
+                            color: value,
+                            borderRadius: BorderRadius.circular(12.0),
+                            border: Border.all(color: Colors.black12),
+                          ),
                         ),
                       );
                     }).toList(),
@@ -74,7 +86,7 @@ class _SideBarState extends State<SideBar> {
                 Navigator.of(context).pop();
                 setState(() {});
               },
-              child: const Text('Adicionar'),
+              child: const Text('Adicionar', style: TextStyle(fontWeight: FontWeight.bold)),
             ),
           ],
         );
@@ -86,8 +98,21 @@ class _SideBarState extends State<SideBar> {
   Widget build(BuildContext context) {
     return widget.isVisible
         ? Container(
-      width: 200,
-      color: Colors.grey[200],
+      width: 220,
+      decoration: BoxDecoration(
+        color: Colors.grey[100],
+        borderRadius: BorderRadius.only(
+          topRight: Radius.circular(20.0),
+          bottomRight: Radius.circular(20.0),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black12,
+            offset: Offset(0, 3),
+            blurRadius: 6.0,
+          ),
+        ],
+      ),
       child: Column(
         children: [
           Expanded(
@@ -99,6 +124,7 @@ class _SideBarState extends State<SideBar> {
                   title: Text(collection.name),
                   leading: CircleAvatar(
                     backgroundColor: collection.color,
+                    child: Icon(Icons.audiotrack, color: Colors.white),
                   ),
                   onTap: () {
                     widget.onCollectionSelected(collection);
@@ -108,10 +134,18 @@ class _SideBarState extends State<SideBar> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: ElevatedButton(
+            padding: const EdgeInsets.all(12.0),
+            child: ElevatedButton.icon(
               onPressed: _addNewCollection,
-              child: const Text('Nova Coleção'),
+              icon: const Icon(Icons.add),
+              label: const Text('Nova Coleção'),
+              style: ElevatedButton.styleFrom(
+                primary: Colors.blueAccent,
+                padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 20.0),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12.0),
+                ),
+              ),
             ),
           ),
         ],
