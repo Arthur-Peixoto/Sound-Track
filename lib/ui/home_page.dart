@@ -3,6 +3,7 @@ import 'package:sound_track/services/audio_player_service.dart';
 import 'package:sound_track/services/text_to_speech_service.dart';
 import 'package:sound_track/ui/side_bar.dart';
 import 'package:sound_track/models/audio_collection.dart';
+import 'package:sound_track/services/collection_service.dart';
 
 class MyHomePage extends StatefulWidget {
   @override
@@ -13,8 +14,17 @@ class _MyHomePageState extends State<MyHomePage> {
   TextEditingController _textFieldController = TextEditingController();
   bool _isLoadingVoice = false;
   bool _isSidebarVisible = false;
-  List<String?> savedAudioPaths = List.filled(8, null); // Lista para armazenar os caminhos dos áudios salvos
   AudioCollection? selectedCollection;
+
+  @override
+  void initState() {
+    super.initState();
+    // Inicializa a coleção predefinida
+    if (CollectionService.getCollection().isEmpty) {
+      CollectionService.createNewCollection('Coleção Padrão', Colors.blue);
+    }
+    selectedCollection = CollectionService.getCollection().first;
+  }
 
   @override
   void dispose() {
@@ -35,13 +45,24 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> _saveTextToSpeech(String text, int index) async {
-    final filePath = await TextToSpeechService.saveTextToSpeech(text, 'output$index.mp3');
-    setState(() {
-      savedAudioPaths[index] = filePath;
-    });
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Áudio salvo no botão ${index + 1}')),
-    );
+    if (selectedCollection != null) {
+      final fileName = 'output_${DateTime.now().millisecondsSinceEpoch}.mp3';
+      final filePath = await TextToSpeechService.saveTextToSpeech(text, fileName);
+      // Salva o áudio na posição do botão correspondente
+      if (index < selectedCollection!.items.length) {
+        selectedCollection!.items[index] = filePath;
+      } else {
+        selectedCollection!.items.add(filePath);
+      }
+      setState(() {}); // Atualiza a interface para refletir o novo áudio salvo
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Áudio salvo no botão ${index + 1} da coleção ${selectedCollection!.name}')),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Por favor, selecione uma coleção antes de salvar o áudio.')),
+      );
+    }
   }
 
   void _onCollectionSelected(AudioCollection collection) {
@@ -119,9 +140,53 @@ class _MyHomePageState extends State<MyHomePage> {
                     ),
                   ),
                   const SizedBox(height: 20.0),
+                  if (selectedCollection != null)
+                    Expanded(
+                      child: GridView.builder(
+                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          crossAxisSpacing: 12.0,
+                          mainAxisSpacing: 12.0,
+                        ),
+                        itemCount: 8,  // Permite 8 botões por coleção
+                        itemBuilder: (context, index) {
+                          final audioPath = index < selectedCollection!.items.length
+                              ? selectedCollection!.items[index]
+                              : null;
+                          return ElevatedButton(
+                            onPressed: audioPath != null
+                                ? () {
+                              AudioPlayerService.playAudioFile(audioPath);
+                            }
+                                : null,
+                            style: ElevatedButton.styleFrom(
+                              primary: audioPath != null
+                                  ? Colors.deepPurple[300]
+                                  : Colors.grey[400],
+                              onPrimary: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12.0),
+                              ),
+                              padding: const EdgeInsets.all(16.0),
+                            ),
+                            child: Text(
+                              'Botão ${index + 1}',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16.0,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  const SizedBox(height: 20.0),
                   ElevatedButton.icon(
                     onPressed: () {
-                      final firstAvailableIndex = savedAudioPaths.indexWhere((path) => path == null);
+                      // Salva o áudio no primeiro botão disponível
+                      final firstAvailableIndex = selectedCollection!.items.length < 8
+                          ? selectedCollection!.items.length
+                          : -1;
                       if (firstAvailableIndex != -1) {
                         _saveTextToSpeech(_textFieldController.text, firstAvailableIndex);
                       } else {
@@ -138,43 +203,6 @@ class _MyHomePageState extends State<MyHomePage> {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12.0),
                       ),
-                    ),
-                  ),
-                  const SizedBox(height: 20.0),
-                  Expanded(
-                    child: GridView.builder(
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        crossAxisSpacing: 12.0,
-                        mainAxisSpacing: 12.0,
-                      ),
-                      itemCount: 8,
-                      itemBuilder: (context, index) {
-                        return ElevatedButton(
-                          onPressed: savedAudioPaths[index] != null
-                              ? () {
-                            AudioPlayerService.playAudioFile(savedAudioPaths[index]!);
-                          }
-                              : null,
-                          style: ElevatedButton.styleFrom(
-                            primary: savedAudioPaths[index] != null
-                                ? Colors.deepPurple[300]
-                                : Colors.grey[400],
-                            onPrimary: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12.0),
-                            ),
-                            padding: const EdgeInsets.all(16.0),
-                          ),
-                          child: Text(
-                            'Botãozinho ${index + 1}',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16.0,
-                            ),
-                          ),
-                        );
-                      },
                     ),
                   ),
                 ],
