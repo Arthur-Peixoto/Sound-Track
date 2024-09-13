@@ -5,10 +5,12 @@ class AudioCollection {
   final DateTime dateCreated;
   final List<String> items;
   final Color color;
+  List<String?>? emojiRepresentation;
 
   AudioCollection({
     required this.name,
     required this.items,
     required this.color,
+    this.emojiRepresentation,
   }) : dateCreated = DateTime.now();
 }

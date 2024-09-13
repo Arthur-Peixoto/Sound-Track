@@ -1,3 +1,4 @@
+import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:sound_track/services/audio_player_service.dart';
 import 'package:sound_track/services/text_to_speech_service.dart';
@@ -19,7 +20,6 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
-    // Inicializa a coleção predefinida
     if (CollectionService.getCollection().isEmpty) {
       CollectionService.createNewCollection('Coleção Padrão', Colors.blue);
     }
@@ -44,17 +44,24 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-  Future<void> _saveTextToSpeech(String text, int index) async {
+  Future<void> _saveTextToSpeech(String text, int index, String emoji) async {
     if (selectedCollection != null) {
       final fileName = 'output_${DateTime.now().millisecondsSinceEpoch}.mp3';
       final filePath = await TextToSpeechService.saveTextToSpeech(text, fileName);
-      // Salva o áudio na posição do botão correspondente
+
+      // Salva o áudio e o emoji diretamente
       if (index < selectedCollection!.items.length) {
         selectedCollection!.items[index] = filePath;
       } else {
         selectedCollection!.items.add(filePath);
       }
-      setState(() {}); // Atualiza a interface para refletir o novo áudio salvo
+
+      setState(() {
+        // Salva o emoji diretamente como String
+        selectedCollection!.emojiRepresentation ??= List.filled(8, null);
+        selectedCollection!.emojiRepresentation![index] = emoji;
+      });
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Áudio salvo no botão ${index + 1} da coleção ${selectedCollection!.name}')),
       );
@@ -79,6 +86,70 @@ class _MyHomePageState extends State<MyHomePage> {
       _isSidebarVisible = !_isSidebarVisible;
     });
   }
+
+  Future<void> _selectEmojiAndSave(int index) async {
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Escolha um emoji para o áudio'),
+          content: Container(
+            width: 300,
+            height: 400,
+            child: SingleChildScrollView( // Usando SingleChildScrollView para evitar problemas com conteúdo grande
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  EmojiPicker(
+                    onEmojiSelected: (category, emoji) {
+                      Navigator.of(context).pop();
+                      _saveTextToSpeech(_textFieldController.text, index, emoji.emoji);
+                    },
+                    config: Config(
+                      height: 300,
+                      emojiTextStyle: TextStyle(fontSize: 20),
+                      emojiViewConfig: EmojiViewConfig(
+                        emojiSizeMax: 24.0,
+                        verticalSpacing: 0,
+                        horizontalSpacing: 0,
+                        gridPadding: EdgeInsets.zero,
+                      ),
+                      categoryViewConfig: CategoryViewConfig(
+                        indicatorColor: Colors.deepPurple,
+                        iconColor: Colors.grey,
+                        iconColorSelected: Colors.deepPurple,
+                      ),
+                      bottomActionBarConfig: BottomActionBarConfig(
+                        enabled: true,
+                        showBackspaceButton: true,
+                        showSearchViewButton: true,
+                        backgroundColor: Colors.deepPurple,
+                        buttonColor: Colors.deepPurple,
+                        buttonIconColor: Colors.white,
+                      ),
+                      searchViewConfig: SearchViewConfig(
+                        backgroundColor: const Color(0xFFEBEFF2),
+                        buttonColor: Colors.transparent,
+                        buttonIconColor: Colors.black26,
+                        hintText: 'Pesquise um emoji',
+                      ),
+                      checkPlatformCompatibility: true,
+                      swapCategoryAndBottomBar: false,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+
+
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -148,11 +219,17 @@ class _MyHomePageState extends State<MyHomePage> {
                           crossAxisSpacing: 12.0,
                           mainAxisSpacing: 12.0,
                         ),
-                        itemCount: 8,  // Permite 8 botões por coleção
+                        itemCount: 8,
                         itemBuilder: (context, index) {
                           final audioPath = index < selectedCollection!.items.length
                               ? selectedCollection!.items[index]
                               : null;
+                          String emoji = 'Botão ${index + 1}';
+                          if (selectedCollection!.emojiRepresentation != null &&
+                              selectedCollection!.emojiRepresentation![index] != null) {
+                            emoji = selectedCollection!.emojiRepresentation![index]!;
+                          }
+
                           return ElevatedButton(
                             onPressed: audioPath != null
                                 ? () {
@@ -170,7 +247,7 @@ class _MyHomePageState extends State<MyHomePage> {
                               padding: const EdgeInsets.all(16.0),
                             ),
                             child: Text(
-                              'Botão ${index + 1}',
+                              emoji,
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 16.0,
@@ -183,12 +260,11 @@ class _MyHomePageState extends State<MyHomePage> {
                   const SizedBox(height: 20.0),
                   ElevatedButton.icon(
                     onPressed: () {
-                      // Salva o áudio no primeiro botão disponível
                       final firstAvailableIndex = selectedCollection!.items.length < 8
                           ? selectedCollection!.items.length
                           : -1;
                       if (firstAvailableIndex != -1) {
-                        _saveTextToSpeech(_textFieldController.text, firstAvailableIndex);
+                        _selectEmojiAndSave(firstAvailableIndex);
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(content: Text('Todos os botões estão ocupados!')),

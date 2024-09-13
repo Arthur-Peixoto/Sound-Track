@@ -51,7 +51,6 @@ class LoginScreen extends StatelessWidget {
             SizedBox(height: 20.0),
             ElevatedButton(
               onPressed: () {
-                // Navegar para a HomePage ao pressionar o botão de login
                 Navigator.of(context).pushReplacement(
                   MaterialPageRoute(builder: (context) => MyHomePage()),
                 );
