@@ -1,8 +1,8 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
-import 'audio_player_service.dart';
-
+import 'package:firebase_storage/firebase_storage.dart';
 import 'audio_player_service.dart';
 
 class TextToSpeechService {
@@ -13,8 +13,6 @@ class TextToSpeechService {
   static String urlLax = 'https://api.elevenlabs.io/v1/text-to-speech/$voiceLax';
 
   static Future<void> playTextToSpeech(String text) async {
-
-
     final response = await http.post(
       Uri.parse(url),
       headers: {
@@ -38,10 +36,6 @@ class TextToSpeechService {
   }
 
   static Future<String> saveTextToSpeech(String text, String fileName) async {
-    String voiceRachel = '21m00Tcm4TlvDq8ikWAM';
-    String url = 'https://api.elevenlabs.io/v1/text-to-speech/$voiceRachel';
-
-
     final response = await http.post(
       Uri.parse(url),
       headers: {
@@ -58,9 +52,27 @@ class TextToSpeechService {
 
     if (response.statusCode == 200) {
       final bytes = response.bodyBytes;
-      return await AudioPlayerService.saveAudio(bytes, fileName);
+
+      String localFilePath = await AudioPlayerService.saveAudio(bytes, fileName);
+      String firebaseUrl = await _uploadToFirebase(File(localFilePath), fileName);
+
+      return firebaseUrl;
     } else {
       throw Exception('Failed to save audio');
+    }
+  }
+
+  static Future<String> _uploadToFirebase(File file, String fileName) async {
+    try {
+      FirebaseStorage storage = FirebaseStorage.instance;
+      Reference ref = storage.ref().child('audios/$fileName');
+
+      UploadTask uploadTask = ref.putFile(file);
+      TaskSnapshot snapshot = await uploadTask;
+      String downloadUrl = await snapshot.ref.getDownloadURL();
+      return downloadUrl;
+    } catch (e) {
+      throw Exception('Erro ao fazer upload para Firebase: $e');
     }
   }
 }
