@@ -58,8 +58,8 @@ class LoginScreen extends StatelessWidget {
               child: Text('Login'),
               style: ElevatedButton.styleFrom(
                 padding: EdgeInsets.symmetric(vertical: 16.0),
-                primary: Colors.deepPurple, // Cor do botão
-                onPrimary: Colors.black87,
+                backgroundColor: Colors.deepPurple, // Cor do botão
+                foregroundColor: Colors.black87,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12.0),
                 ),

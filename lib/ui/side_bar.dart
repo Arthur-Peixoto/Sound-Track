@@ -140,7 +140,7 @@ class _SideBarState extends State<SideBar> {
               icon: const Icon(Icons.add),
               label: const Text('Nova Coleção'),
               style: ElevatedButton.styleFrom(
-                primary: Colors.blueAccent,
+                backgroundColor: Colors.blueAccent,
                 padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 20.0),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12.0),

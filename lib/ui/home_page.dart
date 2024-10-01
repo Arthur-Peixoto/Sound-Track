@@ -204,7 +204,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     label: const Text('Reproduzir Texto'),
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 16.0),
-                      primary: Colors.deepPurple[800],
+                      backgroundColor: Colors.deepPurple[800],
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12.0),
                       ),
@@ -237,10 +237,10 @@ class _MyHomePageState extends State<MyHomePage> {
                             }
                                 : null,
                             style: ElevatedButton.styleFrom(
-                              primary: audioPath != null
+                              backgroundColor: audioPath != null
                                   ? Colors.deepPurple[300]
                                   : Colors.grey[400],
-                              onPrimary: Colors.white,
+                              foregroundColor: Colors.white,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12.0),
                               ),
@@ -275,7 +275,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     label: const Text('Salvar Áudio'),
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 16.0),
-                      primary: Colors.deepPurple[900],
+                      backgroundColor: Colors.deepPurple[900],
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12.0),
                       ),
