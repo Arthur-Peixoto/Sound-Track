@@ -1,9 +1,9 @@
-import 'dart:convert';
 import 'dart:io';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:http/http.dart' as http;
 import 'package:firebase_storage/firebase_storage.dart';
 import 'audio_player_service.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class TextToSpeechService {
   static final String EL_API_KEY = dotenv.env['EL_API_KEY'] as String;
@@ -64,8 +64,11 @@ class TextToSpeechService {
 
   static Future<String> _uploadToFirebase(File file, String fileName) async {
     try {
-      FirebaseStorage storage = FirebaseStorage.instance;
-      Reference ref = storage.ref().child('audios/$fileName');
+      FirebaseStorage storage = FirebaseStorage.instanceFor(
+        bucket:"gs://soundtrack-11c18.appspot.com/audios/"
+      );
+      String storagePath = 'gs://soundtrack-11c18.appspot.com/audios/$fileName';
+      Reference ref = storage.refFromURL(storagePath);
 
       UploadTask uploadTask = ref.putFile(file);
       TaskSnapshot snapshot = await uploadTask;

@@ -33,43 +33,59 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> _playTextToSpeech(String text) async {
-    setState(() {
-      _isLoadingVoice = true;
-    });
+    if (text.trim().isEmpty) {
+      _showSnackBar('Por favor, adicione algum texto.');
+      return;
+    }
 
-    await TextToSpeechService.playTextToSpeech(text);
-
-    setState(() {
-      _isLoadingVoice = false;
-    });
+    try {
+      setState(() {
+        _isLoadingVoice = true;
+      });
+      await TextToSpeechService.playTextToSpeech(text);
+    } catch (e) {
+      _showSnackBar('Falha ao reproduzir o áudio: $e');
+    } finally {
+      setState(() {
+        _isLoadingVoice = false;
+      });
+    }
   }
 
   Future<void> _saveTextToSpeech(String text, int index, String emoji) async {
-    if (selectedCollection != null) {
-      final fileName = 'output_${DateTime.now().millisecondsSinceEpoch}.mp3';
+    if (selectedCollection == null) {
+      _showSnackBar('Por favor, selecione uma coleção antes de salvar o áudio.');
+      return;
+    }
+
+    final fileName = 'output_${DateTime.now().millisecondsSinceEpoch}.mp3';
+    try {
       final filePath = await TextToSpeechService.saveTextToSpeech(text, fileName);
 
-      // Salva o áudio e o emoji diretamente
-      if (index < selectedCollection!.items.length) {
-        selectedCollection!.items[index] = filePath;
-      } else {
-        selectedCollection!.items.add(filePath);
-      }
-
       setState(() {
-        // Salva o emoji diretamente como String
+        if (index < selectedCollection!.items.length) {
+          selectedCollection!.items[index] = filePath;
+        } else {
+          selectedCollection!.items.add(filePath);
+        }
+
         selectedCollection!.emojiRepresentation ??= List.filled(8, null);
         selectedCollection!.emojiRepresentation![index] = emoji;
       });
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Áudio salvo no botão ${index + 1} da coleção ${selectedCollection!.name}')),
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Por favor, selecione uma coleção antes de salvar o áudio.')),
-      );
+      _showSnackBar('Áudio salvo no botão ${index + 1} da coleção ${selectedCollection!.name}');
+    } catch (e) {
+      _showSnackBar('Falha ao salvar o áudio: $e');
     }
+  }
+
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  int _calculateCrossAxisCount(BuildContext context) {
+    double screenWidth = MediaQuery.of(context).size.width;
+    return screenWidth > 600 ? 3 : 2;
   }
 
   void _onCollectionSelected(AudioCollection collection) {
@@ -146,11 +162,6 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-
-
-
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -158,7 +169,7 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         actions: [
           IconButton(
-            icon: Icon(_isSidebarVisible ? Icons.menu_open : Icons.menu,),
+            icon: Icon(_isSidebarVisible ? Icons.menu_open : Icons.menu),
             color: Colors.black87,
             onPressed: _toggleSidebar,
           ),
@@ -192,38 +203,29 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                   const SizedBox(height: 20.0),
                   ElevatedButton.icon(
-                    onPressed: () {
-                      _playTextToSpeech(_textFieldController.text);
-                    },
+                    onPressed: () => _playTextToSpeech(_textFieldController.text),
                     icon: _isLoadingVoice
-                        ? const CircularProgressIndicator(
-                      strokeWidth: 2.0,
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                    )
+                        ? const CircularProgressIndicator(strokeWidth: 2.0, valueColor: AlwaysStoppedAnimation<Color>(Colors.white))
                         : const Icon(Icons.volume_up),
                     label: const Text('Reproduzir Texto'),
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 16.0),
                       backgroundColor: Colors.deepPurple[800],
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12.0),
-                      ),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
                     ),
                   ),
                   const SizedBox(height: 20.0),
                   if (selectedCollection != null)
                     Expanded(
                       child: GridView.builder(
-                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: _calculateCrossAxisCount(context),
                           crossAxisSpacing: 12.0,
                           mainAxisSpacing: 12.0,
                         ),
                         itemCount: 8,
                         itemBuilder: (context, index) {
-                          final audioPath = index < selectedCollection!.items.length
-                              ? selectedCollection!.items[index]
-                              : null;
+                          final audioPath = index < selectedCollection!.items.length ? selectedCollection!.items[index] : null;
                           String emoji = 'Botão ${index + 1}';
                           if (selectedCollection!.emojiRepresentation != null &&
                               selectedCollection!.emojiRepresentation![index] != null) {
@@ -232,27 +234,15 @@ class _MyHomePageState extends State<MyHomePage> {
 
                           return ElevatedButton(
                             onPressed: audioPath != null
-                                ? () {
-                              AudioPlayerService.playAudioFile(audioPath);
-                            }
+                                ? () => AudioPlayerService.playAudioFile(audioPath)
                                 : null,
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: audioPath != null
-                                  ? Colors.deepPurple[300]
-                                  : Colors.grey[400],
+                              backgroundColor: audioPath != null ? Colors.deepPurple[300] : Colors.grey[400],
                               foregroundColor: Colors.white,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12.0),
-                              ),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
                               padding: const EdgeInsets.all(16.0),
                             ),
-                            child: Text(
-                              emoji,
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16.0,
-                              ),
-                            ),
+                            child: Text(emoji, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0)),
                           );
                         },
                       ),
@@ -260,15 +250,11 @@ class _MyHomePageState extends State<MyHomePage> {
                   const SizedBox(height: 20.0),
                   ElevatedButton.icon(
                     onPressed: () {
-                      final firstAvailableIndex = selectedCollection!.items.length < 8
-                          ? selectedCollection!.items.length
-                          : -1;
+                      final firstAvailableIndex = selectedCollection!.items.length < 8 ? selectedCollection!.items.length : -1;
                       if (firstAvailableIndex != -1) {
                         _selectEmojiAndSave(firstAvailableIndex);
                       } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Todos os botões estão ocupados!')),
-                        );
+                        _showSnackBar('Todos os botões estão ocupados!');
                       }
                     },
                     icon: const Icon(Icons.save),
@@ -276,9 +262,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 16.0),
                       backgroundColor: Colors.deepPurple[900],
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12.0),
-                      ),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
                     ),
                   ),
                 ],
@@ -290,3 +274,4 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 }
+
