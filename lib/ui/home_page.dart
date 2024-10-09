@@ -1,4 +1,5 @@
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter/material.dart';
 import 'package:sound_track/services/audio_player_service.dart';
 import 'package:sound_track/services/text_to_speech_service.dart';
@@ -103,6 +104,118 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
+  void _showSettingsPopup() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Configurações'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                title: Text('Alterar Idioma'),
+                subtitle: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    IconButton(
+                      icon: Image.asset('assets/brazil.png',
+                        width: 32,
+                        height: 32,
+                      ), // Bandeira do Brasil
+
+                      onPressed: () {
+                        // Ação para definir idioma como Português
+                      },
+                    ),
+                    IconButton(
+                      icon: Image.asset('assets/uk.png',
+                        width: 32,
+                        height: 32,
+                      ), // Bandeira do Reino Unido
+                      onPressed: () {
+                        // Ação para definir idioma como Inglês
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              ListTile(
+                leading: Icon(Icons.volume_up),
+                title: Text('Ajustes de Volume'),
+                subtitle: Slider(
+                  value: 0.5,
+                  onChanged: (value) {
+                    // Ação para ajustar o volume do áudio
+                  },
+                ),
+              ),
+              ListTile(
+                title: Text('Escolher Voz'),
+                subtitle: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: () {
+                          // Ação para definir voz feminina
+                          setState(() {
+                            // Definir estado como voz feminina
+                          });
+                        },
+                        icon: SvgPicture.asset(
+                          'assets/female.svg', // Substitua pelo caminho da imagem SVG feminina
+                          width: 24,
+                          height: 24,
+                        ),
+                        label: const Text('Feminina'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.pinkAccent,
+                          padding: const EdgeInsets.symmetric(vertical: 12.0),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: () {
+                          // Ação para definir voz masculina
+                          setState(() {
+                            // Definir estado como voz masculina
+                          });
+                        },
+                        icon: SvgPicture.asset(
+                          'assets/male.svg', // Substitua pelo caminho da imagem SVG masculina
+                          width: 24,
+                          height: 24,
+                        ),
+                        label: const Text('Masculina'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.blueAccent,
+                          padding: const EdgeInsets.symmetric(vertical: 12.0),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Fechar'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+
+
   Future<void> _selectEmojiAndSave(int index) async {
     await showDialog(
       context: context,
@@ -172,6 +285,11 @@ class _MyHomePageState extends State<MyHomePage> {
             icon: Icon(_isSidebarVisible ? Icons.menu_open : Icons.menu),
             color: Colors.black87,
             onPressed: _toggleSidebar,
+          ),
+          IconButton(
+            icon: Icon(Icons.settings),
+            color: Colors.black87,
+            onPressed: _showSettingsPopup,
           ),
         ],
         title: const Text('Sound Track', style: TextStyle(fontWeight: FontWeight.bold)),

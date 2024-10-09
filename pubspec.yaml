@@ -40,6 +40,7 @@ dependencies:
   firebase_storage: ^12.3.2
   firebase_auth: ^5.3.1
   flutter_dotenv: ^5.0.2
+  flutter_svg: ^1.0.0
   http: ^0.13.6
   path_provider: ^2.0.3
   just_audio: ^0.9.33
@@ -54,6 +55,13 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^2.0.0
+  flutter_launcher_icons: ^0.10.0
+
+flutter_icons:
+    android: true
+    ios: true
+    image_path: "assets/icon_image_bleach.jpeg"
+    min_sdk_android: 21
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -68,6 +76,11 @@ flutter:
 
   assets:
      - .env
+     - assets/uk.png
+     - assets/brazil.png
+     - assets/male.svg
+     - assets/female.svg
+     - assets/icon_image_bleach.jpeg
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
