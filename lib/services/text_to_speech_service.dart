@@ -7,10 +7,9 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class TextToSpeechService {
   static final String EL_API_KEY = dotenv.env['EL_API_KEY'] as String;
-  static String voiceRachel = '21m00Tcm4TlvDq8ikWAM';
-  static String url = 'https://api.elevenlabs.io/v1/text-to-speech/$voiceRachel';
-  static String voiceLax = 'tS45q0QcrDHqHoaWdCDR';
-  static String urlLax = 'https://api.elevenlabs.io/v1/text-to-speech/$voiceLax';
+  static bool isPortuguese = true;
+  static String voice = 'tS45q0QcrDHqHoaWdCDR';
+  static String url = 'https://api.elevenlabs.io/v1/text-to-speech/$voice';
 
   static Future<void> playTextToSpeech(String text) async {
     final response = await http.post(

@@ -125,7 +125,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       ), // Bandeira do Brasil
 
                       onPressed: () {
-                        // Ação para definir idioma como Português
+                        TextToSpeechService.isPortuguese = true;
                       },
                     ),
                     IconButton(
@@ -134,7 +134,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         height: 32,
                       ), // Bandeira do Reino Unido
                       onPressed: () {
-                        // Ação para definir idioma como Inglês
+                        TextToSpeechService.isPortuguese = false;
                       },
                     ),
                   ],
@@ -158,10 +158,12 @@ class _MyHomePageState extends State<MyHomePage> {
                     Expanded(
                       child: ElevatedButton.icon(
                         onPressed: () {
-                          // Ação para definir voz feminina
-                          setState(() {
-                            // Definir estado como voz feminina
-                          });
+                          if(TextToSpeechService.isPortuguese == true){
+                            TextToSpeechService.voice = 'FIEA0c5UHH9JnvWaQrXS';
+                          }
+                          else{
+                            TextToSpeechService.voice = '21m00Tcm4TlvDq8ikWAM';
+                          }
                         },
                         icon: SvgPicture.asset(
                           'assets/female.svg', // Substitua pelo caminho da imagem SVG feminina
@@ -179,10 +181,12 @@ class _MyHomePageState extends State<MyHomePage> {
                     Expanded(
                       child: ElevatedButton.icon(
                         onPressed: () {
-                          // Ação para definir voz masculina
-                          setState(() {
-                            // Definir estado como voz masculina
-                          });
+                          if(TextToSpeechService.isPortuguese == true){
+                            TextToSpeechService.voice = 'tS45q0QcrDHqHoaWdCDR';
+                          }
+                          else{
+                            TextToSpeechService.voice = 'pNInz6obpgDQGcFmaJgB';
+                          }
                         },
                         icon: SvgPicture.asset(
                           'assets/male.svg', // Substitua pelo caminho da imagem SVG masculina
@@ -329,6 +333,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 16.0),
                       backgroundColor: Colors.deepPurple[800],
+                      foregroundColor: Colors.white60,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
                     ),
                   ),
@@ -380,6 +385,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 16.0),
                       backgroundColor: Colors.deepPurple[900],
+                      foregroundColor: Colors.white60,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
                     ),
                   ),
