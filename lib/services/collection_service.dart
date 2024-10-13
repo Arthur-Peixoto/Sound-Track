@@ -1,6 +1,6 @@
 import 'dart:ui';
 
-import 'package:sound_track/models/audio_collection.dart';
+import '../models/audio_collection.dart';
 
 class CollectionService {
   static final List<AudioCollection> _collections = [];

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 
-import 'package:sound_track/ui/login_screen.dart';
+import '../ui/login_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   @override

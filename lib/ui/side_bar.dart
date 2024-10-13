@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:sound_track/services/collection_service.dart';
-import 'package:sound_track/models/audio_collection.dart';
+import '../services/collection_service.dart';
+import '../models/audio_collection.dart';
 
 class SideBar extends StatefulWidget {
   final Function(AudioCollection) onCollectionSelected;
